@@ -15,20 +15,22 @@ app.use(express.static('public')); //specify location of static assests
 app.set("home", __dirname + '/home'); //specify location of templates
 app.set('view engine', 'ejs'); //specify templating library
 
-const axios = require('axios');
+var request = require("request");
 
-async function makeGetRequest() {
+var options = { method: 'GET',
+  url: 'http://api.planetos.com/v1/datasets',
+  qs: { apikey: '03fbf7ec0ded4558ac5a4452b4ecc178' },
+};
 
-  let res = await axios.get('https://newsapi.org/v2/top-headlines?country=us&apiKey=02951409c4104386b21d0b052aeb2078');
+request(options, function (error, response, body) {
+  if (error) throw new Error(error);
+  // console.log(body);
+  var result = JSON.parse(body)
+  fs.writeFileSync( 'data.json', JSON.stringify(result))
 
-  let data = JSON.stringify(res.data);
-  fs.writeFile('data.json', data, err => {
-    // error checking
-    if(err) throw err;
+  console.log(result)
 });
-}
 
-makeGetRequest();
 data = fs.readFileSync("data.json", "utf8")
 app.get('/', function(request, response) {
   response.status(200);
